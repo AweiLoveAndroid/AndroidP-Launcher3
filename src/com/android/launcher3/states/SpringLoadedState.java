@@ -91,7 +91,8 @@ public class SpringLoadedState extends LauncherState {
 
     @Override
     public void onStateDisabled(final Launcher launcher) {
-        launcher.getWorkspace().getPageIndicator().setShouldAutoHide(true);
+        // 禁止滑动指示器自动隐藏
+        launcher.getWorkspace().getPageIndicator().setShouldAutoHide(false);
 
         // Re-enable any Un/InstallShortcutReceiver and now process any queued items
         InstallShortcutReceiver.disableAndFlushInstallQueue(

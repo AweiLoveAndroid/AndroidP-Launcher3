@@ -48,7 +48,8 @@ public class WorkspacePageIndicator extends View implements Insettable, PageIndi
     private final Handler mDelayedLineFadeHandler = new Handler(Looper.getMainLooper());
     private final Launcher mLauncher;
 
-    private boolean mShouldAutoHide = true;
+    // 默认禁用自动隐藏
+    private boolean mShouldAutoHide = false;
 
     // The alpha of the line when it is showing.
     private int mActiveAlpha = 0;
@@ -121,11 +122,13 @@ public class WorkspacePageIndicator extends View implements Insettable, PageIndi
         mLinePaint.setAlpha(0);
 
         mLauncher = Launcher.getLauncher(context);
+        // 默认是1dp 改成5dp看得更清楚
         mLineHeight = res.getDimensionPixelSize(R.dimen.dynamic_grid_page_indicator_line_height);
 
         boolean darkText = WallpaperColorInfo.getInstance(context).supportsDarkText();
         mActiveAlpha = darkText ? BLACK_ALPHA : WHITE_ALPHA;
-        mLinePaint.setColor(darkText ? Color.BLACK : Color.WHITE);
+        mLinePaint.setColor(darkText ? Color.GREEN : Color.YELLOW);
+        mLinePaint.setStrokeWidth(20);
     }
 
     @Override
