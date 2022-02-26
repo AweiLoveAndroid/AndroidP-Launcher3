@@ -25,6 +25,11 @@
         <item name="android:windowShowWallpaper">true</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:colorEdgeEffect">#FF757575</item>
+
+        <!--加一个主题颜色，这个是PageIndicatorDots选中时默认的颜色-->
+        <!--<item name="android:colorAccent">?android:attr/colorAccent</item>-->
+        <!--加一个主题颜色，这个是PageIndicatorDots未选中时默认的颜色-->
+        <!--<item name="android:colorControlHighlight">?android:attr/colorControlHighlight</item>-->
     </style>
 
     <style name="BaseLauncherThemeWithCustomAttrs" parent="@style/BaseLauncherTheme">

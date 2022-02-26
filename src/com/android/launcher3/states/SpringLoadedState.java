@@ -73,10 +73,21 @@ public class SpringLoadedState extends LauncherState {
     }
 
     @Override
+    public float getWorkspaceScrimAlpha(Launcher launcher) {
+        return 0.3f;
+    }
+
+    /**
+     * 状态可用的时候触发
+     * @param launcher
+     */
+    @Override
     public void onStateEnabled(Launcher launcher) {
-        Workspace ws = launcher.getWorkspace();
-        ws.showPageIndicatorAtCurrentScroll();
-        ws.getPageIndicator().setShouldAutoHide(false);
+
+        // 使用圆点指示器（PageIndicatorDots）需要把这个去掉
+        // Workspace ws = launcher.getWorkspace();
+        // ws.showPageIndicatorAtCurrentScroll();
+        // ws.getPageIndicator().setShouldAutoHide(false);
 
         // Prevent any Un/InstallShortcutReceivers from updating the db while we are
         // in spring loaded mode
@@ -84,15 +95,15 @@ public class SpringLoadedState extends LauncherState {
         launcher.getRotationHelper().setCurrentStateRequest(REQUEST_LOCK);
     }
 
-    @Override
-    public float getWorkspaceScrimAlpha(Launcher launcher) {
-        return 0.3f;
-    }
-
+    /**
+     * 状态不可用的时候触发
+     * @param launcher
+     */
     @Override
     public void onStateDisabled(final Launcher launcher) {
-        // 禁止滑动指示器自动隐藏
-        launcher.getWorkspace().getPageIndicator().setShouldAutoHide(false);
+        // launcher.getWorkspace().getPageIndicator().setShouldAutoHide(true);
+        // 禁止滑动指示器自动隐藏，使用圆点指示器（PageIndicatorDots）需要把这个去掉
+        // launcher.getWorkspace().getPageIndicator().setShouldAutoHide(false);
 
         // Re-enable any Un/InstallShortcutReceiver and now process any queued items
         InstallShortcutReceiver.disableAndFlushInstallQueue(

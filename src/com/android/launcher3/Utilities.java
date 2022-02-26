@@ -123,6 +123,12 @@ public final class Utilities {
     private static final int CORE_POOL_SIZE = CPU_COUNT + 1;
     private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
     private static final int KEEP_ALIVE = 1;
+
+    // The name of the setting to retrieve.
+    public static final String SYS_LAUNCHER3_IS_FULL_APP = "sys.launcher3.is_full_app";
+    //
+    public static final String IS_FULL_APP_PREFERENCE_KEY = "pref_is_full_app";
+
     /**
      * An {@link Executor} to be used with async task with no limit on the queue size.
      */
@@ -590,5 +596,33 @@ public final class Utilities {
         Message msg = Message.obtain(handler, callback);
         msg.setAsynchronous(true);
         handler.sendMessage(msg);
+    }
+
+    public static void getScreenParams(Context context){
+        DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        int screenWidth = dm.widthPixels;
+        int screenHeight = dm.heightPixels;
+        int densityDpi = dm.densityDpi;
+        float density = dm.density;
+        float xdpi = dm.xdpi;
+        float ydpi = dm.ydpi;
+        float scaledDensity = dm.scaledDensity;
+        int navigationBarHeight = getNavigationBarHeight(context);
+        Log.d("BaseActivity", "screenWidth: " + screenWidth);
+        Log.d("BaseActivity", "screenHeight: " + screenHeight);
+        Log.d("BaseActivity", "Phone All Height: " + (screenHeight + navigationBarHeight));
+        Log.d("BaseActivity", "densityDpi: " + densityDpi);
+        Log.d("BaseActivity", "density: " + density);
+        Log.d("BaseActivity", "xdpi: " + xdpi);
+        Log.d("BaseActivity", "ydpi: " + ydpi);
+        Log.d("BaseActivity", "scaledDensity: " + scaledDensity);
+    }
+
+    public static int getNavigationBarHeight(Context context) {
+        Resources resources = context.getResources();
+        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+        int navigationBarHeight = resources.getDimensionPixelSize(resourceId);
+        Log.e("BaseActivity", "getNavigationBarHeight: " + navigationBarHeight);
+        return navigationBarHeight;
     }
 }

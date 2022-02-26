@@ -146,4 +146,9 @@
         <attr name="numMinRows" format="integer" />
         <attr name="numMinColumns" format="integer" />
     </declare-styleable>
+
+    <declare-styleable name="PageIndicatorDots">
+        <attr name="activeColor" format="color|reference" />
+        <attr name="inActiveColor" format="color|reference" />
+    </declare-styleable>
 </resources>

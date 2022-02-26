@@ -45,11 +45,21 @@
 
         <!-- Keep these behind the workspace so that they are not visible when
          we go into AllApps -->
-        <com.android.launcher3.pageindicators.WorkspacePageIndicator
+        <!--<com.android.launcher3.pageindicators.WorkspacePageIndicator-->
+        <!--    android:id="@+id/page_indicator"-->
+        <!--    android:layout_width="match_parent"-->
+        <!--    android:layout_height="4dp"-->
+        <!--    android:layout_gravity="bottom|center_horizontal"-->
+        <!--    android:theme="@style/HomeScreenElementTheme" />-->
+
+        <!--底部滑动指示器换成圆点-->
+        <com.android.launcher3.pageindicators.PageIndicatorDots
             android:id="@+id/page_indicator"
             android:layout_width="match_parent"
             android:layout_height="20dp"
             android:layout_gravity="bottom|center_horizontal"
+            launcher:activeColor="@android:color/holo_orange_light"
+            launcher:inActiveColor="@android:color/white"
             android:theme="@style/HomeScreenElementTheme" />
 
         <include

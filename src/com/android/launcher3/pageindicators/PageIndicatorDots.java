@@ -23,18 +23,26 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Property;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
+import android.widget.FrameLayout;
 
+import com.android.launcher3.DeviceProfile;
+import com.android.launcher3.Insettable;
+import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.util.Themes;
@@ -43,7 +51,7 @@ import com.android.launcher3.util.Themes;
  * {@link PageIndicator} which shows dots per page. The active page is shown with the current
  * accent color.
  */
-public class PageIndicatorDots extends View implements PageIndicator {
+public class PageIndicatorDots extends View implements PageIndicator, Insettable {
 
     private static final float SHIFT_PER_ANIMATION = 0.5f;
     private static final float SHIFT_THRESHOLD = 0.1f;
@@ -75,12 +83,19 @@ public class PageIndicatorDots extends View implements PageIndicator {
 
     private final Paint mCirclePaint;
     private final float mDotRadius;
-    private final int mActiveColor;
-    private final int mInActiveColor;
+    /**
+     * 当前选中页的小圆点指示器颜色，这里去掉了final修饰，可以在xml里面设置 launcher:activeColor="XXX"
+     */
+    private int mActiveColor;
+    /**
+     * 其他未选中页的小圆点指示器颜色，这里去掉了final修饰，可以在xml里面设置 launcher:inActiveColor="XXX"
+     */
+    private int mInActiveColor;
     private final boolean mIsRtl;
 
     private int mNumPages;
     private int mActivePage;
+    private Launcher mLauncher;
 
     /**
      * The current position of the active dot including the animation progress.
@@ -108,15 +123,46 @@ public class PageIndicatorDots extends View implements PageIndicator {
     public PageIndicatorDots(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
+        mLauncher = Launcher.getLauncher(context);
+
         mCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mCirclePaint.setStyle(Style.FILL);
         mDotRadius = getResources().getDimension(R.dimen.page_indicator_dot_size) / 2;
         setOutlineProvider(new MyOutlineProver());
 
-        mActiveColor = Themes.getColorAccent(context);
-        mInActiveColor = Themes.getAttrColor(context, android.R.attr.colorControlHighlight);
-
         mIsRtl = Utilities.isRtl(getResources());
+
+        // 默认使用主题里面的 android:colorAccent 属性值，这里没有在xml里面动态配置，扩展性不强，所以改进了一下
+        // mActiveColor = Themes.getColorAccent(context);
+        // mInActiveColor = Themes.getAttrColor(context, android.R.attr.colorControlHighlight);
+
+        // 这里增加了在xml里面设置属性，根据传入的属性值以及主题里面设置的值综合判断，利于扩展。
+        TypedArray ta =
+                context.obtainStyledAttributes(attrs, R.styleable.PageIndicatorDots, defStyleAttr, 0);
+         mActiveColor = ta.getColor(R.styleable.PageIndicatorDots_activeColor, 0);
+         mInActiveColor = ta.getColor(R.styleable.PageIndicatorDots_inActiveColor, 0);
+
+        int themeActiveColor = Themes.getColorAccent(context);
+        int themeInActiveColor = Themes.getAttrColor(context, android.R.attr.colorControlHighlight);
+
+         if(mActiveColor == 0){
+             if(themeActiveColor == 0){
+                 mActiveColor = Color.YELLOW;
+             } else {
+                 mActiveColor = themeActiveColor;
+             }
+         }
+
+        if(mInActiveColor == 0){
+            if(themeInActiveColor == 0){
+                mInActiveColor = Color.WHITE;
+            } else {
+                mInActiveColor = themeInActiveColor;
+            }
+        }
+
+        ta.recycle();
+
     }
 
     @Override
@@ -126,6 +172,12 @@ public class PageIndicatorDots extends View implements PageIndicator {
                 currentScroll = totalScroll - currentScroll;
             }
             int scrollPerPage = totalScroll / (mNumPages - 1);
+
+            // add for change WorkspacePageIndicator line to dot
+            if (scrollPerPage == 0) {
+                return;
+            }
+
             int pageToLeft = currentScroll / scrollPerPage;
             int pageToLeftScroll = pageToLeft * scrollPerPage;
             int pageToRightScroll = pageToLeftScroll + scrollPerPage;
@@ -166,6 +218,20 @@ public class PageIndicatorDots extends View implements PageIndicator {
         }
         mFinalPosition = mActivePage;
         CURRENT_POSITION.set(this, mFinalPosition);
+    }
+
+    /**
+     * Pauses all currently running animations.
+     */
+    public void pauseAnimations() {
+        stopAllAnimations();
+    }
+
+    /**
+     * Force-ends all currently running or paused animations.
+     */
+    public void skipAnimationsToEnd() {
+        stopAllAnimations();
     }
 
     /**
@@ -298,6 +364,28 @@ public class PageIndicatorDots extends View implements PageIndicator {
             sTempRect.left = sTempRect.right - rectWidth;
         }
         return sTempRect;
+    }
+
+    /**
+     *  调整圆点的位置
+     * @param insets
+     */
+    @Override
+    public void setInsets(Rect insets) {
+        DeviceProfile grid = mLauncher.getDeviceProfile();
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) getLayoutParams();
+
+        if (grid.isVerticalBarLayout()) {
+            Rect padding = grid.workspacePadding;
+            lp.leftMargin = padding.left + grid.workspaceCellPaddingXPx;
+            lp.rightMargin = padding.right + grid.workspaceCellPaddingXPx;
+            lp.bottomMargin = padding.bottom;
+        } else {
+            lp.leftMargin = lp.rightMargin = 0;
+            lp.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
+            lp.bottomMargin = grid.hotseatBarSizePx + insets.bottom;
+        }
+        setLayoutParams(lp);
     }
 
     private class MyOutlineProver extends ViewOutlineProvider {

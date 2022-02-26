@@ -253,6 +253,9 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 获取屏幕相关参数
+        Utilities.getScreenParams(Launcher.this);
+
         if (DEBUG_STRICT_MODE) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectDiskReads()
